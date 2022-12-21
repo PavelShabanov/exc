@@ -132,6 +132,78 @@ def find_start_end_project(st, end):
     start_date_project = st_[0]
     end_date_project = end_[-1]
 
+def insert_graf():
+    global count_month_in_project, sheet_graf, ind_table_start_column, ind_month_enum_row,\
+        ind_sum_row, add_row
+    chart = ScatterChart()
+    chart.title = "График выполнения работ"
+    chart.style = 2
+    chart.x_axis.title = 'месяцы'
+    chart.y_axis.title = 'проценты'
+    chart.x_axis.scaling.min = 0
+    chart.x_axis.scaling.max = count_month_in_project
+    chart.y_axis.scaling.min = 0
+    chart.y_axis.scaling.max = BAC
+    xvalues = Reference(sheet_graf, min_col=ind_table_start_column, min_row=ind_month_enum_row, \
+        max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_month_enum_row)
+    # PV sum
+    values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1, \
+        max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1)
+    series = Series(values, xvalues, title_from_data=True)
+    chart.series.append(series)
+    # AC sum
+    values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1+6, \
+        max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1+6)
+    series = Series(values, xvalues, title_from_data=True)
+    chart.series.append(series)
+    # EV sum
+    values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1+3, \
+        max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1+3)
+    series = Series(values, xvalues, title_from_data=True)
+    chart.series.append(series)
+    # добавляем диаграмму
+    add_row += 1
+    sheet_graf.add_chart(chart, str(name_table_start_column)+str(ind_sum_row+len(units_arr)+1)) 
+
+
+    line1 = chart.series[0]
+    # цвет заливки линии графика
+    line1.graphicalProperties.line.solidFill = "FF9900"
+    # символ маркера для текущего значения
+    line1.marker.symbol = "x"
+    # цвет заливки маркера
+    line1.marker.graphicalProperties.solidFill = "FF9900"
+    line1.marker.graphicalProperties.line.solidFill = "FF9900"
+    # заливаем линию между маркерами (не прозрачная)
+    line1.graphicalProperties.line.noFill = False
+    # делаем линию гладкой
+    line1.smooth = True
+    # ширина указывается в EMU
+    line1.graphicalProperties.line.width = 100050
+
+    # ЛИНИЯ С ДАННЫМИ ИЗ 2 СТОЛБЦА ДАННЫХ
+    line2 = chart.series[1]
+    # цвет заливки линии графика
+    line2.graphicalProperties.line.solidFill = "00AAFF"
+    # делаем линию пунктирной
+    line2.graphicalProperties.line.dashStyle = "sysDot"
+    # ширина указывается в EMU
+    line2.graphicalProperties.line.width = 100050
+
+    # ЛИНИЯ С ДАННЫМИ ИЗ 3 СТОЛБЦА ДАННЫХ
+    line3 = chart.series[2]
+    # цвет заливки линии графика
+    line3.graphicalProperties.line.solidFill = "00FF66"
+    # символ маркера для текущего значения
+    line3.marker.symbol = "triangle"
+    # покрасим маркер в другой цвет
+    line3.marker.graphicalProperties.solidFill = "00FF66"
+    line3.marker.graphicalProperties.line.solidFill = "00FF66"
+    # делаем линию гладкой
+    line3.graphicalProperties.line.dashStyle = "sysDash"
+    # ширина указывается в EMU
+    line3.graphicalProperties.line.width = 100050
+
 #открыть файл с нужным листом
 book_graf=openpyxl.open(file_name_read) #, data_only=True)
 sheet_graf=book_graf[sheet_name]
@@ -344,74 +416,7 @@ for j in range(ind_table_start_column, ind_table_start_column+count_month_in_pro
         sheet_graf.cell(row=ind_sum_row+add_row, column=j).value = PC[ind_col]  
 
 # строим диаграмму
-chart = ScatterChart()
-chart.title = "График выполнения работ"
-chart.style = 2
-chart.x_axis.title = 'месяцы'
-chart.y_axis.title = 'проценты'
-chart.x_axis.scaling.min = 0
-chart.x_axis.scaling.max = count_month_in_project
-chart.y_axis.scaling.min = 0
-chart.y_axis.scaling.max = BAC
-xvalues = Reference(sheet_graf, min_col=ind_table_start_column, min_row=ind_month_enum_row, \
-    max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_month_enum_row)
-# PV sum
-values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1, \
-    max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1)
-series = Series(values, xvalues, title_from_data=True)
-chart.series.append(series)
-# AC sum
-values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1+6, \
-    max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1+6)
-series = Series(values, xvalues, title_from_data=True)
-chart.series.append(series)
-# EV sum
-values = Reference(sheet_graf, min_col=ind_table_start_column-1, min_row=ind_sum_row+1+3, \
-    max_col=ind_table_start_column+count_month_in_project-1, max_row=ind_sum_row+1+3)
-series = Series(values, xvalues, title_from_data=True)
-chart.series.append(series)
-# добавляем диаграмму
-add_row += 1
-sheet_graf.add_chart(chart, str(name_table_start_column)+str(ind_sum_row+len(units_arr)+1)) 
-
-
-line1 = chart.series[0]
-# цвет заливки линии графика
-line1.graphicalProperties.line.solidFill = "FF9900"
-# символ маркера для текущего значения
-line1.marker.symbol = "x"
-# цвет заливки маркера
-line1.marker.graphicalProperties.solidFill = "FF9900"
-line1.marker.graphicalProperties.line.solidFill = "FF9900"
-# заливаем линию между маркерами (не прозрачная)
-line1.graphicalProperties.line.noFill = False
-# делаем линию гладкой
-line1.smooth = True
-# ширина указывается в EMU
-line1.graphicalProperties.line.width = 100050
-
-# ЛИНИЯ С ДАННЫМИ ИЗ 2 СТОЛБЦА ДАННЫХ
-line2 = chart.series[1]
-# цвет заливки линии графика
-line2.graphicalProperties.line.solidFill = "00AAFF"
-# делаем линию пунктирной
-line2.graphicalProperties.line.dashStyle = "sysDot"
-# ширина указывается в EMU
-line2.graphicalProperties.line.width = 100050
-
-# ЛИНИЯ С ДАННЫМИ ИЗ 3 СТОЛБЦА ДАННЫХ
-line3 = chart.series[2]
-# цвет заливки линии графика
-line3.graphicalProperties.line.solidFill = "00FF66"
-# символ маркера для текущего значения
-line3.marker.symbol = "triangle"
-# покрасим маркер в другой цвет
-line3.marker.graphicalProperties.solidFill = "00FF66"
-line3.marker.graphicalProperties.line.solidFill = "00FF66"
-# делаем линию гладкой
-line3.graphicalProperties.line.dashStyle = "sysDash"
-# ширина указывается в EMU
-line3.graphicalProperties.line.width = 100050
+insert_graf()
 
 # сохранить файл
 book_graf.save(file_name_write)
